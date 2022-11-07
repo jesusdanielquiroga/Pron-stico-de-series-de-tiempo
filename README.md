@@ -23,13 +23,15 @@
 
 * [Predicciones multi-step](#predicciones-multi-step)
 
-* [Recursive multi-step forecasting](##recursive-multi-step-forecasting)
+* [Recursive multi-step forecasting](#recursive-multi-step-forecasting)
 
-* [Direct multi-step forecasting](##direct-multi-step-forecasting)
+* [Direct multi-step forecasting](#direct-multi-step-forecasting)
 
-* [Multiple output forecasting](##multiple-output-forecasting)
+* [Multiple output forecasting](#multiple-output-forecasting)
 
 * [Forecasting autorregresivo recursivo](#forecasting-autorregresivo-recursivo)
+
+* [Forecasting autorregresivo recursivo con variables exógenas](#forecasting-autorregresivo-recursivo-con-variables-exógenas)
 
 # Intro
 
@@ -377,3 +379,37 @@ print(f"Error de test (mse) {error_mse}")
 ```sh
 Error de test (mse) 0.004392699665157793
 ```
+**Importancia predictores**
+
+Dado que el objeto *ForecasterAutoreg* utiliza modelos scikit-learn, una vez entrenado, se puede acceder a la importancia de los predictores. Cuando el regresor empleado es un *LinearRegression()*, *Lasso()* o *Ridge()*, la importancia queda reflejada en los coeficientes del modelo, que se obtienen con el método *get_coef()*. En regresores *GradientBoostingRegressor()* o *RandomForestRegressor()*, la importancia de los predictores está basada en la reducción de impureza y es accesible mediante el método *get_feature_importances()*. En ambos casos, el orden devuelto se corresponde con el de los lags.
+
+```sh
+# Importancia predictores
+# ==============================================================================
+impotancia = forecaster_rf.get_feature_importances()
+dict(zip(forecaster_rf.lags, impotancia))
+```
+```sh
+{1: 0.012553886713487061,
+ 2: 0.08983951332807713,
+ 3: 0.010659102591406495,
+ 4: 0.002089457758242796,
+ 5: 0.0020659673443678165,
+ 6: 0.0025603607878369916,
+ 7: 0.002581234419075128,
+ 8: 0.00692666663137377,
+ 9: 0.011527319810863246,
+ 10: 0.02536813007770579,
+ 11: 0.0179467896103424,
+ 12: 0.7756201041018168,
+ 13: 0.0031870877064889024,
+ 14: 0.014718107972907108,
+ 15: 0.00787688226587692,
+ 16: 0.003480591965198101,
+ 17: 0.0027116142341500264,
+ 18: 0.0020417148550876244,
+ 19: 0.0018876654387458749,
+ 20: 0.004357802386950057}
+```
+
+# Forecasting autorregresivo recursivo con variables exógenas
