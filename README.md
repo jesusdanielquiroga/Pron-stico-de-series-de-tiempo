@@ -418,7 +418,7 @@ En el ejemplo anterior, se han utilizado como predictores únicamente lags de la
 
 Siguiendo con el ejemplo anterior, se simula una nueva variable cuyo comportamiento está correlacionado con la serie temporal modelada y que, por lo tanto, se quiere incorporar como predictor. Esto mísmo es aplicable a múltiples variables exógenas.
 
-**Ejercicio 2**
+<a href="Forecasting_var_exogenas.ipynb">**Ejercicio 2**</a>
 
 **Datos**
 
