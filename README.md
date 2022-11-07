@@ -84,7 +84,7 @@ Determinados modelos, por ejemplo, las redes neuronales LSTM, son capaces de pre
 
 # Forecasting autorregresivo recursivo
 
-**Ejercicio 1**
+<a href="Forecasting_series_temporales.ipynb">**Ejercicio 1**</a>
 
 Se dispone de una serie temporal con el gasto mensual (millones de dólares) en fármacos con corticoides que tuvo el sistema de salud Australiano entre 1991 y 2008. Se pretende crear un modelo autoregresivo capaz de predecir el futuro gasto mensual.
 
@@ -153,4 +153,58 @@ datos = datos.asfreq('MS')
 datos = datos.sort_index()
 datos.head()
 ```
+Al establecer una frecuencia con el método $asfreq()$, Pandas completa los huecos que puedan existir en la serie temporal con el valor de $Null$ con el fin de asegurar la frecuencia indicada. Por ello, se debe comprobar si han aparecido missing values tras esta transformación.
 
+**Dividir datos de train y test**
+
+```sh
+# Separación datos train-test
+# ==============================================================================
+steps = 36
+datos_train = datos[:-steps]
+datos_test  = datos[-steps:]
+
+print(f"Fechas train : {datos_train.index.min()} --- {datos_train.index.max()}  (n={len(datos_train)})")
+print(f"Fechas test  : {datos_test.index.min()} --- {datos_test.index.max()}  (n={len(datos_test)})")
+
+fig, ax = plt.subplots(figsize=(9, 4))
+datos_train['y'].plot(ax=ax, label='train')
+datos_test['y'].plot(ax=ax, label='test')
+ax.legend();
+```
+![figure1 (1)](https://user-images.githubusercontent.com/87950040/200336777-d6efd07b-0f78-4c8a-b760-ffdf905f8998.png)
+
+**ForecasterAutoreg**
+
+Se crea y entrena un modelo ForecasterAutoreg a partir de un regresor RandomForestRegressor y una ventana temporal de 6 lags. Esto último significa que, el modelo, utiliza como predictores los 6 meses anteriores.
+```sh
+# Crear y entrenar forecaster
+# ==============================================================================
+forecaster = ForecasterAutoreg(
+                regressor = RandomForestRegressor(random_state=123),
+                lags = 6
+             )
+
+forecaster.fit(y=datos_train['y'])
+forecaster
+
+================= 
+ForecasterAutoreg 
+================= 
+Regressor: RandomForestRegressor(random_state=123) 
+Lags: [1 2 3 4 5 6] 
+Transformer for y: None 
+Transformer for exog: None 
+Window size: 6 
+Included exogenous: False 
+Type of exogenous variable: None 
+Exogenous variables names: None 
+Training range: [Timestamp('1992-04-01 00:00:00'), Timestamp('2005-06-01 00:00:00')] 
+Training index type: DatetimeIndex 
+Training index frequency: MS 
+Regressor parameters: {'bootstrap': True, 'ccp_alpha': 0.0, 'criterion': 'squared_error', 'max_depth': None, 'max_features': 'auto', 'max_leaf_nodes': None, 'max_samples': None, 'min_impurity_decrease': 0.0, 'min_samples_leaf': 1, 'min_samples_split': 2, 'min_weight_fraction_leaf': 0.0, 'n_estimators': 100, 'n_jobs': None, 'oob_score': False, 'random_state': 123, 'verbose': 0, 'warm_start': False} 
+Creation date: 2022-11-07 14:33:03 
+Last fit date: 2022-11-07 14:33:03 
+Skforecast version: 0.5.1 
+Python version: 3.7.15 
+```
