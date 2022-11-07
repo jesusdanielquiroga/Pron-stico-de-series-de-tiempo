@@ -25,6 +25,10 @@
 
 * [Recursive multi-step forecasting](#recursive-multi-step-forecasting)
 
+* [Direct multi-step forecasting](#direct-multi-step-forecasting)
+
+* [Multiple output forecasting](#multiple-output-forecasting)
+
 # Intro
 
 El pronóstico de <a href="https://github.com/jesusdanielquiroga/Series-de-Tiempo.git">series temporales</a> es un área importante del aprendizaje automático que a menudo se descuida. Es importante porque hay tantos problemas de predicción que involucran un componente de tiempo. Estos problemas se descuidan porque es este componente de tiempo el que hace que los problemas de <a href="https://github.com/jesusdanielquiroga/Series-de-Tiempo.git">series temporales</a> sean más difíciles de manejar.
@@ -62,3 +66,16 @@ Dado que, para predecir el momento  tn  se necesita el valor de  $t_{n−1}$ , y
 
 ![diagrama-multistep-recursiva](https://user-images.githubusercontent.com/87950040/200326635-d2c7b1ab-25b9-4945-b465-0502d4497813.png)
 
+# Direct multi-step forecasting
+
+El método direct multi-step forecasting consiste en entrenar un modelo distinto para cada step. Por ejemplo, si se quieren predecir los siguientes 5 valores de una serie temporal, se entrenan 5 modelos distintos, uno para cada step. Como resultado, las predicciones son independientes unas de otras.
+
+![diagrama-prediccion-multistep-directa](https://user-images.githubusercontent.com/87950040/200329066-cb451d71-f9cf-4870-b52e-c9b6ec3b58d1.png)
+
+La principal complejidad de esta aproximación consiste en generar correctamente las matrices de entrenamiento para cada modelo. Todo este proceso está automatizado en la clase $ForecasterAutoregDirect$ de la librería <a href="https://joaquinamatrodrigo.github.io/skforecast/0.4.3/index.html">Skforecast</a>. También es importante tener en cuenta que esta estrategia tiene un coste computacional más elevado ya que requiere entrenar múltiples modelos. En el siguiente esquema se muestra el proceso para un caso en el que se dispone de la variable respuesta y dos variables exógenas.
+
+![diagram_skforecast_multioutput](https://user-images.githubusercontent.com/87950040/200329390-1a00b922-a0bb-44c4-8bfd-49daaecfdcc0.png)
+
+# Multiple output forecasting
+
+Determinados modelos, por ejemplo, las redes neuronales LSTM, son capaces de predecir de forma simultánea varios valores de una secuencia (one-shot).
