@@ -131,3 +131,26 @@ import warnings
 # warnings.filterwarnings('ignore')
 ```
 
+**Datos**
+
+```sh
+# Descarga de datos
+# ==============================================================================
+url = 'https://raw.githubusercontent.com/JoaquinAmatRodrigo/skforecast/master/data/h2o_exog.csv'
+datos = pd.read_csv(url, sep=',')
+```
+
+**Preparación de datos**
+
+La columna fecha se ha almacenado como string. Para convertirla en datetime, se emplea la función pd.to_datetime(). Una vez en formato datetime, y para hacer uso de las funcionalidades de Pandas, se establece como índice. Además, dado que los datos son mensuales, se indica la frecuencia (Monthly Started 'MS').
+```sh
+# Preparación del dato
+# ==============================================================================
+datos['fecha'] = pd.to_datetime(datos['fecha'], format='%Y/%m/%d')
+datos = datos.set_index('fecha')
+datos = datos.rename(columns={'x': 'y'})
+datos = datos.asfreq('MS')
+datos = datos.sort_index()
+datos.head()
+```
+
