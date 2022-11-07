@@ -19,7 +19,11 @@
 
 * [Intro](#intro)
 
-*[Entrenamiento de un modelo de forecasting](#entrenamiento-de-un-modelo-de-forecasting)
+* [Entrenamiento de un modelo de forecasting](#entrenamiento-de-un-modelo-de-forecasting)
+
+* [Predicciones multi-step](#predicciones-multi-step)
+
+* [Recursive multi-step forecasting](#recursive-multi-step-forecasting)
 
 # Intro
 
@@ -40,11 +44,18 @@ En el siguiente repositorio se describe cómo utilizar modelos de regresión de 
 
 # Entrenamiento de un modelo de forecasting
 
-Lo primero que debemos hacer es transformar la serie temporal en un matriz en la que, cada valor, está asociado a la ventana temporal (lags) que le precede.
+Lo primero que debemos hacer es transformar la <a href="https://github.com/jesusdanielquiroga/Series-de-Tiempo.git">serie temporal</a> en un matriz en la que, cada valor, está asociado a la ventana temporal (lags) que le precede.
 
 ![transform_timeseries](https://user-images.githubusercontent.com/87950040/200323192-c64b6130-595e-43cd-b481-ae722a2481e8.gif)
 
-Este tipo de transformación también permite incluir variables exógenas a la serie temporal.
+Este tipo de transformación también permite incluir variables exógenas a la <a href="https://github.com/jesusdanielquiroga/Series-de-Tiempo.git">serie temporal</a>.
 
 ![matrix_transformation_with_exog_variable](https://user-images.githubusercontent.com/87950040/200323505-c44bbf42-fe8a-4bc2-aa24-a3450cfec83b.png)
 
+# Predicciones multi-step
+
+Cuando se trabaja con <a href="https://github.com/jesusdanielquiroga/Series-de-Tiempo.git">series temporales</a>, raramente se quiere predecir solo el siguiente elemento de la serie ( $t_{+1}$ ), sino todo un intervalo futuro o un punto alejado en el tiempo ( $t_{+n}$ ). A cada paso de predicción se le conoce como step. Existen varias estrategias que permiten generar este tipo de predicciones múltiples.
+
+# Recursive multi-step forecasting
+
+Dado que, para predecir el momento  tn  se necesita el valor de  $t_{n−1}$ , y  $t_{n−1}$  se desconoce, se sigue un proceso recursivo en el que, cada nueva predicción, hace uso de la predicción anterior. A este proceso se le conoce como recursive forecasting o recursive multi-step forecasting y pueden generarse fácilmente con las clases $ForecasterAutoreg$ y $ForecasterAutoregCustom$ de la librería <a href="https://joaquinamatrodrigo.github.io/skforecast/0.4.3/index.html">Skforecast</a>.
