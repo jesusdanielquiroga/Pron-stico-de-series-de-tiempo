@@ -59,3 +59,6 @@ Cuando se trabaja con <a href="https://github.com/jesusdanielquiroga/Series-de-T
 # Recursive multi-step forecasting
 
 Dado que, para predecir el momento  tn  se necesita el valor de  $t_{n−1}$ , y  $t_{n−1}$  se desconoce, se sigue un proceso recursivo en el que, cada nueva predicción, hace uso de la predicción anterior. A este proceso se le conoce como recursive forecasting o recursive multi-step forecasting y pueden generarse fácilmente con las clases $ForecasterAutoreg$ y $ForecasterAutoregCustom$ de la librería <a href="https://joaquinamatrodrigo.github.io/skforecast/0.4.3/index.html">Skforecast</a>.
+
+![diagrama-multistep-recursiva](https://user-images.githubusercontent.com/87950040/200326635-d2c7b1ab-25b9-4945-b465-0502d4497813.png)
+
