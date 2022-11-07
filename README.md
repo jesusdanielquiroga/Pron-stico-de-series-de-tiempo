@@ -23,11 +23,13 @@
 
 * [Predicciones multi-step](#predicciones-multi-step)
 
-* [Recursive multi-step forecasting](#recursive-multi-step-forecasting)
+* [Recursive multi-step forecasting](##recursive-multi-step-forecasting)
 
-* [Direct multi-step forecasting](#direct-multi-step-forecasting)
+* [Direct multi-step forecasting](##direct-multi-step-forecasting)
 
-* [Multiple output forecasting](#multiple-output-forecasting)
+* [Multiple output forecasting](##multiple-output-forecasting)
+
+* [Forecasting autorregresivo recursivo](#forecasting-autorregresivo-recursivo)
 
 # Intro
 
@@ -60,13 +62,13 @@ Este tipo de transformación también permite incluir variables exógenas a la <
 
 Cuando se trabaja con <a href="https://github.com/jesusdanielquiroga/Series-de-Tiempo.git">series temporales</a>, raramente se quiere predecir solo el siguiente elemento de la serie ( $t_{+1}$ ), sino todo un intervalo futuro o un punto alejado en el tiempo ( $t_{+n}$ ). A cada paso de predicción se le conoce como step. Existen varias estrategias que permiten generar este tipo de predicciones múltiples.
 
-# Recursive multi-step forecasting
+## Recursive multi-step forecasting
 
 Dado que, para predecir el momento  tn  se necesita el valor de  $t_{n−1}$ , y  $t_{n−1}$  se desconoce, se sigue un proceso recursivo en el que, cada nueva predicción, hace uso de la predicción anterior. A este proceso se le conoce como recursive forecasting o recursive multi-step forecasting y pueden generarse fácilmente con las clases $ForecasterAutoreg$ y $ForecasterAutoregCustom$ de la librería <a href="https://joaquinamatrodrigo.github.io/skforecast/0.4.3/index.html">Skforecast</a>.
 
 ![diagrama-multistep-recursiva](https://user-images.githubusercontent.com/87950040/200326635-d2c7b1ab-25b9-4945-b465-0502d4497813.png)
 
-# Direct multi-step forecasting
+## Direct multi-step forecasting
 
 El método direct multi-step forecasting consiste en entrenar un modelo distinto para cada step. Por ejemplo, si se quieren predecir los siguientes 5 valores de una serie temporal, se entrenan 5 modelos distintos, uno para cada step. Como resultado, las predicciones son independientes unas de otras.
 
@@ -76,6 +78,56 @@ La principal complejidad de esta aproximación consiste en generar correctamente
 
 ![diagram_skforecast_multioutput](https://user-images.githubusercontent.com/87950040/200329390-1a00b922-a0bb-44c4-8bfd-49daaecfdcc0.png)
 
-# Multiple output forecasting
+## Multiple output forecasting
 
 Determinados modelos, por ejemplo, las redes neuronales LSTM, son capaces de predecir de forma simultánea varios valores de una secuencia (one-shot).
+
+# Forecasting autorregresivo recursivo
+
+**Ejercicio 1**
+
+Se dispone de una serie temporal con el gasto mensual (millones de dólares) en fármacos con corticoides que tuvo el sistema de salud Australiano entre 1991 y 2008. Se pretende crear un modelo autoregresivo capaz de predecir el futuro gasto mensual.
+
+Es posible que se requiera instalar en su entorno la librería <a href="https://joaquinamatrodrigo.github.io/skforecast/0.4.3/index.html">Skforecast</a>:
+
+```sh
+!pip install skforecast
+```
+Las librerías requeridas para el ejercicio:
+
+```sh
+# Tratamiento de datos
+# ==============================================================================
+import numpy as np
+import pandas as pd
+
+# Gráficos
+# ==============================================================================
+import matplotlib.pyplot as plt
+plt.style.use('fivethirtyeight')
+plt.rcParams['lines.linewidth'] = 1.5
+%matplotlib inline
+
+# Modelado y Forecasting
+# ==============================================================================
+from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Lasso
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import make_pipeline
+
+from skforecast.ForecasterAutoreg import ForecasterAutoreg
+from skforecast.ForecasterAutoregCustom import ForecasterAutoregCustom
+from skforecast.ForecasterAutoregDirect import ForecasterAutoregDirect
+from skforecast.model_selection import grid_search_forecaster
+from skforecast.model_selection import backtesting_forecaster
+from skforecast.utils import save_forecaster
+from skforecast.utils import load_forecaster
+
+# Configuración warnings
+# ==============================================================================
+import warnings
+# warnings.filterwarnings('ignore')
+```
+
