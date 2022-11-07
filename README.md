@@ -187,7 +187,8 @@ forecaster = ForecasterAutoreg(
 
 forecaster.fit(y=datos_train['y'])
 forecaster
-
+```
+```sh
 ================= 
 ForecasterAutoreg 
 ================= 
@@ -207,4 +208,172 @@ Creation date: 2022-11-07 14:33:03
 Last fit date: 2022-11-07 14:33:03 
 Skforecast version: 0.5.1 
 Python version: 3.7.15 
+```
+**Predicciones**
+```sh
+# Predicciones
+# ==============================================================================
+steps = 36
+predicciones = forecaster.predict(steps=steps)
+predicciones.head(5)
+```
+```sh
+2005-07-01    0.878756
+2005-08-01    0.882167
+2005-09-01    0.973184
+2005-10-01    0.983678
+2005-11-01    0.849494
+Freq: MS, Name: pred, dtype: float64
+```
+**Graficamos resultados**
+```sh
+# Gráfico
+# ==============================================================================
+fig, ax = plt.subplots(figsize=(9, 4))
+datos_train['y'].plot(ax=ax, label='train')
+datos_test['y'].plot(ax=ax, label='test')
+predicciones.plot(ax=ax, label='predicciones')
+ax.legend();
+```
+![figure1 (2)](https://user-images.githubusercontent.com/87950040/200339050-62ad75a3-8df4-4c2c-9810-e9d735bef74a.png)
+
+**Estimación del error**
+
+Se cuantifica el error que comete el modelo en sus predicciones. En este caso, se emplea como métrica el mean squared error (mse)
+```sh
+# Error test
+# ==============================================================================
+error_mse = mean_squared_error(
+                y_true = datos_test['y'],
+                y_pred = predicciones
+            )
+
+print(f"Error de test (mse): {error_mse}")
+```
+```sh
+Error de test (mse): 0.07326833976120374
+```
+**Ajuste de hiperparámetros (tuning)**
+
+El **$ForecasterAutoreg$** entrenado ha utilizado una ventana temporal de 6 lags y un modelo Random Forest con los hiperparámetros por defecto. Sin embargo, no hay ninguna razón por la que estos valores sean los más adecuados. Para identificar la mejor combinación de lags e hiperparámetros, la librería Skforecast dispone de la función **$grid_search_forecaster$** con la que comparar los resultados obtenidos con cada configuración del modelo.
+
+```sh
+# Grid search de hiperparámetros
+# ==============================================================================
+steps = 36
+forecaster = ForecasterAutoreg(
+                regressor = RandomForestRegressor(random_state=123),
+                lags      = 12 # Este valor será remplazado en el grid search
+             )
+
+# Lags utilizados como predictores
+lags_grid = [10, 20]
+
+# Hiperparámetros del regresor
+param_grid = {'n_estimators': [100, 500],
+              'max_depth': [3, 5, 10]}
+
+resultados_grid = grid_search_forecaster(
+                        forecaster         = forecaster,
+                        y                  = datos_train['y'],
+                        param_grid         = param_grid,
+                        lags_grid          = lags_grid,
+                        steps              = steps,
+                        refit              = True,
+                        metric             = 'mean_squared_error',
+                        initial_train_size = int(len(datos_train)*0.5),
+                        fixed_train_size   = False,
+                        return_best        = True,
+                        verbose            = False
+                  )             
+ ```    
+  ```sh
+  Number of models compared: 12.
+loop lags_grid:   0%|                                               | 0/2 [00:00<?, ?it/s]
+loop param_grid:   0%|                                              | 0/6 [00:00<?, ?it/s]
+loop param_grid:  17%|██████▎                               | 1/6 [00:01<00:05,  1.15s/it]
+loop param_grid:  33%|████████████▋                         | 2/6 [00:06<00:14,  3.64s/it]
+loop param_grid:  50%|███████████████████                   | 3/6 [00:07<00:07,  2.51s/it]
+loop param_grid:  67%|█████████████████████████▎            | 4/6 [00:13<00:07,  3.70s/it]
+loop param_grid:  83%|███████████████████████████████▋      | 5/6 [00:14<00:02,  2.81s/it]
+loop param_grid: 100%|██████████████████████████████████████| 6/6 [00:20<00:00,  3.83s/it]
+loop lags_grid:  50%|███████████████████▌                   | 1/2 [00:20<00:20, 20.28s/it]
+loop param_grid:   0%|                                              | 0/6 [00:00<?, ?it/s]
+loop param_grid:  17%|██████▎                               | 1/6 [00:01<00:06,  1.26s/it]
+loop param_grid:  33%|████████████▋                         | 2/6 [00:06<00:15,  3.87s/it]
+loop param_grid:  50%|███████████████████                   | 3/6 [00:08<00:08,  2.68s/it]
+loop param_grid:  67%|█████████████████████████▎            | 4/6 [00:14<00:07,  3.92s/it]
+loop param_grid:  83%|███████████████████████████████▋      | 5/6 [00:15<00:02,  2.97s/it]
+loop param_grid: 100%|██████████████████████████████████████| 6/6 [00:21<00:00,  4.09s/it]
+loop lags_grid: 100%|███████████████████████████████████████| 2/2 [00:41<00:00, 20.95s/it]
+`Forecaster` refitted using the best-found lags and parameters, and the whole data set: 
+  Lags: [ 1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20] 
+  Parameters: {'max_depth': 3, 'n_estimators': 500}
+  Backtesting metric: 0.012836389345193383
+  ```  
+  ```sh
+# Resultados Grid Search
+# ==============================================================================
+resultados_grid
+  ``` 
+ ```sh
+                                              	lags                               	params	mean_squared_errormax_depthn_estimators
+7	[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14...	{'max_depth': 3, 'n_estimators': 500}	0.012836	3	500
+6	[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14...	{'max_depth': 3, 'n_estimators': 100}	0.012858	3	100
+9	[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14...	{'max_depth': 5, 'n_estimators': 500}	0.013248	5	500
+8	[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14...	{'max_depth': 5, 'n_estimators': 100}	0.013364	5	100
+11	[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14...	{'max_depth': 10, 'n_estimators': 500}	0.013435	10	500
+10	[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14...	{'max_depth': 10, 'n_estimators': 100}	0.014028	10	100
+0	[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]	{'max_depth': 3, 'n_estimators': 100}	0.036982	3	100
+1	[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]	{'max_depth': 3, 'n_estimators': 500}	0.037345	3	500
+3	[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]	{'max_depth': 5, 'n_estimators': 500}	0.037574	5	500
+5	[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]	{'max_depth': 10, 'n_estimators': 500}	0.040542	10	500
+2	[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]	{'max_depth': 5, 'n_estimators': 100}	0.041474	5	100
+4	[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]	{'max_depth': 10, 'n_estimators': 100}	0.047870	10	100
+ ``` 
+Los mejores resultados se obtienen si se utiliza una ventana temporal de 20 lags y una configuración de Random Forest {'max_depth': 3, 'n_estimators': 500}.
+ 
+**Modelo Final**
+ 
+Finalmente, se entrena de nuevo un ForecasterAutoreg con la configuración óptima encontrada mediante validación. Este paso no es necesario si se indica return_best = True en la función grid_search_forecaster.
+
+```sh
+# Crear y entrenar forecaster con mejores hiperparámetros
+# ==============================================================================
+regressor = RandomForestRegressor(max_depth=3, n_estimators=500, random_state=123)
+forecaster = ForecasterAutoreg(
+                regressor = regressor,
+                lags      = 20
+             )
+
+forecaster.fit(y=datos_train['y'])
+```
+```sh
+# Predicciones
+# ==============================================================================
+predicciones = forecaster.predict(steps=steps)
+```
+```sh
+# Gráfico
+# ==============================================================================
+fig, ax = plt.subplots(figsize=(9, 4))
+datos_train['y'].plot(ax=ax, label='train')
+datos_test['y'].plot(ax=ax, label='test')
+predicciones.plot(ax=ax, label='predicciones')
+ax.legend();
+```
+![figure2](https://user-images.githubusercontent.com/87950040/200343122-26c2fdea-cde6-4aad-b59c-aebc81930c7d.png)
+
+```sh
+# Error de test
+# ==============================================================================
+error_mse = mean_squared_error(
+                y_true = datos_test['y'],
+                y_pred = predicciones
+            )
+
+print(f"Error de test (mse) {error_mse}")
+```
+```sh
+Error de test (mse) 0.004392699665157793
 ```
