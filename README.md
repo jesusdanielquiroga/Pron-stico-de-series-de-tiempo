@@ -418,6 +418,8 @@ En el ejemplo anterior, se han utilizado como predictores únicamente lags de la
 
 Siguiendo con el ejemplo anterior, se simula una nueva variable cuyo comportamiento está correlacionado con la serie temporal modelada y que, por lo tanto, se quiere incorporar como predictor. Esto mísmo es aplicable a múltiples variables exógenas.
 
+**Ejercicio 2**
+
 **Datos**
 
 Cargamos nuevamente el data set y lo preparamos como en el ejemplo anterior:
@@ -455,4 +457,40 @@ forecaster_rf = ForecasterAutoreg(
                 )
 
 forecaster_rf.fit(y=datos_train['y'], exog=datos_train['exog_1'])
+```
+**Predicciones**
+
+Si el ForecasterAutoreg se entrena con una variable exógena, hay que pasarle el valor de esta variable al predict(). Por lo tanto, solo es aplicable a escenarios en los que se dispone de información a futuro de la variable exógena.
+
+```sh
+# Predicciones
+# ==============================================================================
+predicciones = forecaster_rf.predict(steps=steps, exog=datos_test['exog_1'])
+# Se añade el índice a las predicciones
+predicciones = pd.Series(data=predicciones, index=datos_test.index)
+```
+**Graficamos**
+```sh
+# Gráfico
+# ==============================================================================
+fig, ax=plt.subplots(figsize=(9, 4))
+datos_train['y'].plot(ax=ax, label='train')
+datos_test['y'].plot(ax=ax, label='test')
+predicciones.plot(ax=ax, label='predicciones')
+ax.legend();
+```
+![das](https://user-images.githubusercontent.com/87950040/200432048-419c7bae-06d4-484a-8d88-015ca848f934.png)
+
+**Estimamos el error**
+```sh
+# Error test
+# ==============================================================================
+error_mse = mean_squared_error(
+                y_true = datos_test['y'],
+                y_pred = predicciones
+            )
+print(f"Error de test (mse): {error_mse}")
+```
+```sh
+Error de test (mse): 0.03989087922533575
 ```
