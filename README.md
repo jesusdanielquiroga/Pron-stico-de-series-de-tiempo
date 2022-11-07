@@ -494,3 +494,59 @@ print(f"Error de test (mse): {error_mse}")
 ```sh
 Error de test (mse): 0.03989087922533575
 ```
+**Ajuste de hiperparámetros (tuning)**
+```sh
+# Grid search de hiperparámetros
+# ==============================================================================
+forecaster_rf = ForecasterAutoreg(
+                    regressor = RandomForestRegressor(random_state=123),
+                    lags      = 12 # Este valor será remplazado en el grid search
+                 )
+
+param_grid = {'n_estimators': [50, 100, 500],
+              'max_depth': [3, 5, 10]}
+
+lags_grid = [5, 12, 20]
+
+resultados_grid = grid_search_forecaster(
+                        forecaster  = forecaster_rf,
+                        y           = datos_train['y'],
+                        exog        = datos_train['exog_1'],
+                        param_grid  = param_grid,
+                        lags_grid   = lags_grid,
+                        steps       = 10,
+                        #method      = 'cv',
+                        metric      = 'mean_squared_error',
+                        initial_train_size    = int(len(datos_train)*0.5),
+                        #allow_incomplete_fold = False,
+                        return_best = True,
+                        verbose     = False
+                    )
+```
+```sh
+resultados_grid.head()
+```
+Si corres los codigos puede encontrar que los mejores resultados se obtienen si se utiliza una ventana temporal de 12 lags y una configuración de Random Forest {'max_depth': 10, 'n_estimators': 50}.
+
+
+**Modelo Final**
+
+Como se ha indicado return_best=True en el grid_search_forecaster(), tras la búsqueda, el objeto ForecasterAutoreg ha sido modificado y entrenado con la mejor combinación encontrada.
+```sh
+# Predicciones
+# ==============================================================================
+predicciones = forecaster_rf.predict(steps=steps, exog=datos_test['exog_1'])
+# Se añade el índice a las predicciones
+predicciones = pd.Series(data=predicciones, index=datos_test.index)
+
+# Gráfico
+# ==============================================================================
+fig, ax=plt.subplots(figsize=(9, 4))
+datos_train['y'].plot(ax=ax, label='train')
+datos_test['y'].plot(ax=ax, label='test')
+predicciones.plot(ax=ax, label='predicciones')
+ax.legend();
+```
+![final](https://user-images.githubusercontent.com/87950040/200433765-a671080c-99f8-44b5-8742-36450a7b12d9.png)
+
+
