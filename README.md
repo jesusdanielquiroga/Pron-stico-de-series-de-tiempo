@@ -413,3 +413,46 @@ dict(zip(forecaster_rf.lags, impotancia))
 ```
 
 # Forecasting autorregresivo recursivo con variables exógenas
+
+En el ejemplo anterior, se han utilizado como predictores únicamente lags de la propia variable predicha. En ciertos escenarios, es posible disponer de información sobre otras variables, cuyo valor a futuro se conoce, y pueden servir como predictores adicionales en el modelo.
+
+Siguiendo con el ejemplo anterior, se simula una nueva variable cuyo comportamiento está correlacionado con la serie temporal modelada y que, por lo tanto, se quiere incorporar como predictor. Esto mísmo es aplicable a múltiples variables exógenas.
+
+**Datos**
+
+Cargamos nuevamente el data set y lo preparamos como en el ejemplo anterior:
+
+```sh
+# Preparación del dato
+# ==============================================================================
+datos['fecha'] = pd.to_datetime(datos['fecha'], format='%Y/%m/%d')
+datos = datos.set_index('fecha')
+datos = datos.rename(columns={'x': 'y'})
+datos = datos.asfreq('MS')
+datos = datos.sort_index()
+fig, ax = plt.subplots(figsize=(9, 4))
+datos['y'].plot(ax=ax, label='y')
+datos['exog_1'].plot(ax=ax, label='variable exógena')
+ax.legend();
+```
+
+![da](https://user-images.githubusercontent.com/87950040/200430769-3416874f-4290-4e85-83c8-4d6fb0a3c962.png)
+
+```sh
+# Separación datos train-test
+# ==============================================================================
+steps = 36
+datos_train = datos[:-steps]
+datos_test  = datos[-steps:]
+```
+**ForecasterAutoreg**
+```sh
+# Crear y entrenar forecaster
+# ==============================================================================
+forecaster_rf = ForecasterAutoreg(
+                    regressor = RandomForestRegressor(random_state=123),
+                    lags      = 8
+                )
+
+forecaster_rf.fit(y=datos_train['y'], exog=datos_train['exog_1'])
+```
