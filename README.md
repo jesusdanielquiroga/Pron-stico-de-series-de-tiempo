@@ -19,6 +19,8 @@
 
 * [Intro](#intro)
 
+*[Entrenamiento de un modelo de forecasting](#entrenamiento-de-un-modelo-de-forecasting)
+
 # Intro
 
 El pronóstico de <a href="https://github.com/jesusdanielquiroga/Series-de-Tiempo.git">series temporales</a> es un área importante del aprendizaje automático que a menudo se descuida. Es importante porque hay tantos problemas de predicción que involucran un componente de tiempo. Estos problemas se descuidan porque es este componente de tiempo el que hace que los problemas de <a href="https://github.com/jesusdanielquiroga/Series-de-Tiempo.git">series temporales</a> sean más difíciles de manejar.
@@ -35,3 +37,14 @@ Utilice el método socrático y haga muchas preguntas para ayudar a ampliar los 
 * ¿Con qué frecuencia temporal se requieren los pronósticos? A menudo, los pronósticos se pueden hacer a frecuencias más bajas o más altas, lo que le permite aprovechar el muestreo descendente y el muestreo ascendente de datos, lo que a su vez puede ofrecer beneficios durante el modelado.
 
 En el siguiente repositorio se describe cómo utilizar modelos de regresión de Scikit-learn para realizar forecasting sobre <a href="https://github.com/jesusdanielquiroga/Series-de-Tiempo.git">series temporales</a>. Se hace uso de <a href="https://joaquinamatrodrigo.github.io/skforecast/0.4.3/index.html">Skforecast</a>, una librería que contiene las clases y funciones necesarias para adaptar cualquier modelo de regresión de Scikit-learn a problemas de forecasting.
+
+# Entrenamiento de un modelo de forecasting
+
+Lo primero que debemos hacer es transformar la serie temporal en un matriz en la que, cada valor, está asociado a la ventana temporal (lags) que le precede.
+
+![transform_timeseries](https://user-images.githubusercontent.com/87950040/200323192-c64b6130-595e-43cd-b481-ae722a2481e8.gif)
+
+Este tipo de transformación también permite incluir variables exógenas a la serie temporal.
+
+![matrix_transformation_with_exog_variable](https://user-images.githubusercontent.com/87950040/200323505-c44bbf42-fe8a-4bc2-aa24-a3450cfec83b.png)
+
